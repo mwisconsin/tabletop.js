@@ -1,7 +1,8 @@
 var gulp  = require('gulp'),
     gutil = require('gulp-util'),
     yargs = require('yargs'),
-    jQuery = require('jquery');
+    jQuery = require('jquery'),
+    request = require('request');
     
 var red     = gutil.colors.red,
     yellow  = gutil.colors.yellow,
@@ -17,13 +18,15 @@ gulp.task('test',function() {
 		.argv;
 	
   if(args.connection) {
-  	jQuery.ajax({
-  		url: 'https://tabletop.events/api/',
-  		method: 'POST',
-  		data: creds,
-  		dataType: 'json'
-  	}).done(function(data) {
-  		gutil.log(data);
-  	});
+		request.post(
+	    'https://tabletop.events/api/session',
+	    { json: creds },
+	    function (error, response, body) {
+	    	gutil.log(response.statusCode+"\n");
+        if (!error && response.statusCode == 200) {
+            gutil.log(body)
+        }
+	    }
+		);
   }	
 });
