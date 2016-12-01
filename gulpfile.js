@@ -148,16 +148,17 @@ gulp.task('delete',function() {
 		.alias('e','event_id')
 		.argv;	
 
-				request.delete(
+				request.post(
 			    'https://tabletop.events/api/session',
 			    { json: creds },
 			    function (error, response, body) {
+			    	console.log(body);
 		        if (!error && response.statusCode == 200) {
 		            var session_id = body.result.id;
 		            var js = creds;
 		            js.session_id = session_id;
 		            js.event_id = args.event_id;
-		            request.post(
+		            request.delete(
 		            	'https://tabletop.events/api/event',
 		            	{ json: js },
 		            	function(e, r, b) {
