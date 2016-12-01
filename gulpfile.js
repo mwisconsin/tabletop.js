@@ -106,7 +106,9 @@ gulp.task('submit',function() {
 			    'alternatedaypart_id',
 			    'preferreddaypart_id',
 			    'type_id',
-			    'long_description'
+			    'long_description',
+			    'room_id',
+			    'space_id'
 			  ]);
 			  if(output.length < 1) {
 			  	console.log('Error: No Data in '+args.input_file);
@@ -118,9 +120,20 @@ gulp.task('submit',function() {
 			    function (error, response, body) {
 			    	gutil.log(response.statusCode+"\n");
 		        if (!error && response.statusCode == 200) {
-		            var session_id = body.id;
+		        		console.log(body);
+		            var session_id = body.result.id;
 		            console.log('session '+session_id);
-		            var 
+		            output[0].username = creds.username;
+		            output[0].password = creds.password;
+		            output[0].api_key_id = creds.api_key_id;
+		            output[0].session_id = session_id;
+		            request.post(
+		            	'https://tabletop.events/api/event',
+		            	{ json: output[0] },
+		            	function(e, r, b) {
+		            		console.log(b);
+		            	}
+		            )
 		            	
 		        }
 			    }
@@ -128,4 +141,31 @@ gulp.task('submit',function() {
 			});
 		});
   }		
+});
+
+gulp.task('delete',function() {
+		var args = yargs
+		.alias('e','event_id')
+		.argv;	
+
+				request.delete(
+			    'https://tabletop.events/api/session',
+			    { json: creds },
+			    function (error, response, body) {
+		        if (!error && response.statusCode == 200) {
+		            var session_id = body.result.id;
+		            var js = creds;
+		            js.session_id = session_id;
+		            js.event_id = args.event_id;
+		            request.post(
+		            	'https://tabletop.events/api/event',
+		            	{ json: js },
+		            	function(e, r, b) {
+		            		console.log(b);
+		            	}
+		            )
+		            	
+		        }
+			    }
+				);		
 });
